@@ -27,4 +27,4 @@ Tienda online de equipamiento deportivo con visión de marca propia.
 
 ---
 
-Made with ❤️ by Asier
+Made with ❤️ by Yurik
