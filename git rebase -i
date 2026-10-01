@@ -1,0 +1,48 @@
+[33mcommit 189edc395a6b6feee5b6edb81fe1735e8f2903c6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: cff7bd0 06db103
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 23:12:36 2026 +0200
+
+    ReadME
+
+[33mcommit cff7bd022a371c9c752cc8cf2d21bceae6e36ead[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 22:59:35 2026 +0200
+
+    fase 0.1
+
+[33mcommit 1c813073ebff23794f0d1756faa0e17a69331ba2[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 21:04:21 2026 +0200
+
+    README author name
+
+[33mcommit 06db103e1f6329ea6d27c1a591dafa030f6eedf7[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 21:03:29 2026 +0200
+
+    Update author name in README.md
+
+[33mcommit 18920f96def28748a75994aa9f3e9bda119d5f66[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 21:02:43 2026 +0200
+
+    Some visual changes
+
+[33mcommit 02b3c6054e79bab3bdccb1ce47a245d25ad0f1d9[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 20:46:38 2026 +0200
+
+    First web view
+
+[33mcommit ea4e9b48f6102e820db101038d343eb87f3e2862[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 20:20:56 2026 +0200
+
+    Setup inicial: React frontend + Node.js backend
+
+[33mcommit ca46c21e24b39499b42f716654006768e02603ee[m
+Author: Yurik <yurikfranco20@gmail.com>
+Date:   Thu Oct 1 19:54:42 2026 +0200
+
+    Primer commit: gitignore,readme,decisiones
