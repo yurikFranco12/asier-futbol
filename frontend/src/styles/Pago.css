@@ -1,0 +1,157 @@
+.pago-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.pago-container h2 {
+  font-size: 28px;
+  color: #2D5016;
+  margin-bottom: 30px;
+}
+
+.pago-contenido {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+.formulario-pago {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+fieldset {
+  border: none;
+  padding: 0 0 20px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+fieldset:last-of-type {
+  border-bottom: none;
+}
+
+legend {
+  font-weight: bold;
+  color: #2D5016;
+  margin-bottom: 15px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.formulario-pago input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.formulario-pago input:focus {
+  outline: none;
+  border-color: #2D5016;
+  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+}
+
+.fila-pago {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.fila-pago input {
+  margin-bottom: 0;
+}
+
+.boton-pagar {
+  width: 100%;
+  padding: 15px;
+  background-color: #D4AF37;
+  color: #1a3d0a;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s;
+  margin-top: 20px;
+}
+
+.boton-pagar:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.boton-pagar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resumen-pedido {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.resumen-pedido h3 {
+  color: #2D5016;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+}
+
+.resumen-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.resumen-total {
+  padding: 15px 0;
+  border-top: 2px solid #2D5016;
+  font-size: 18px;
+  color: #2D5016;
+}
+
+.pago-exito {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.mensaje-exito {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mensaje-exito h2 {
+  color: #27ae60;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.mensaje-exito p {
+  color: #555;
+  margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+  .pago-contenido {
+    grid-template-columns: 1fr;
+  }
+
+  .resumen-pedido {
+    position: static;
+  }
+}

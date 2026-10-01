@@ -1,12 +1,25 @@
 import React from 'react';
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ProveedorCarrito } from './contexto/ContextoCarrito';
+import Inicio from './pages/Inicio';
+import Carrito from './components/Carrito';
+import Pago from './components/Pago';
+import Cabecera from './components/Cabecera';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <Home />
-    </div>
+    <Router>
+      <ProveedorCarrito>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Inicio/>} />
+            <Route path="/carrito" element={<Carrito />} />
+            <Route path="/pago" element={<Pago />} />
+          </Routes>
+        </div>
+      </ProveedorCarrito>
+    </Router>
   );
 }
 
