@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 
 // Importar rutas
+const authRoutes = require('./routes/auth');
 const stripeRoutes = require('./routes/stripe');
 
 // Middleware
@@ -34,6 +35,9 @@ app.get('/api/salud', (req, res) => {
     bd: process.env.DB_NAME || 'asier_futbol'
   });
 });
+
+// Rutas de Autenticación
+app.use('/api/auth', authRoutes);
 
 // Rutas de Stripe
 app.use('/api/stripe', stripeRoutes);
