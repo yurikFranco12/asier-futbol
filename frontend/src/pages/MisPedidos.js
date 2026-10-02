@@ -179,7 +179,10 @@ function MisPedidos() {
                   <p>No hay pedidos con este estado</p>
                 </div>
               ) : (
-                pedidosFiltrados.map(pedido => (
+                pedidosFiltrados.map(pedido => {
+                  const totalNumero = typeof pedido.total === 'string' ? parseFloat(pedido.total) : pedido.total;
+
+                  return (
                   <div key={pedido.id} className="tarjeta-pedido">
                     <div className="pedido-encabezado">
                       <div className="pedido-numero">
@@ -206,7 +209,7 @@ function MisPedidos() {
                     <div className="pedido-info">
                       <div className="info-fila">
                         <span className="label">Total:</span>
-                        <span className="valor precio">${pedido.total.toFixed(2)}</span>
+                        <span className="valor precio">${totalNumero.toFixed(2)}</span>
                       </div>
                       <div className="info-fila">
                         <span className="label">Items:</span>
@@ -225,14 +228,18 @@ function MisPedidos() {
                       Ver Detalles →
                     </button>
                   </div>
-                ))
+                  );
+                })
               )}
             </main>
           </div>
         )}
 
         {/* Modal de detalles */}
-        {pedidoSeleccionado && (
+        {pedidoSeleccionado && (() => {
+          const totalNumeroModal = typeof pedidoSeleccionado.total === 'string' ? parseFloat(pedidoSeleccionado.total) : pedidoSeleccionado.total;
+
+          return (
           <div className="modal-overlay" onClick={() => setPedidoSeleccionado(null)}>
             <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
               <button className="btn-cerrar" onClick={() => setPedidoSeleccionado(null)}>
@@ -254,7 +261,7 @@ function MisPedidos() {
                 <div className="seccion">
                   <h3>📋 Información del Pedido</h3>
                   <p><strong>Fecha:</strong> {new Date(pedidoSeleccionado.fecha_pedido).toLocaleDateString('es-ES')}</p>
-                  <p><strong>Total:</strong> ${pedidoSeleccionado.total.toFixed(2)}</p>
+                  <p><strong>Total:</strong> ${totalNumeroModal.toFixed(2)}</p>
                   <p><strong>Método de Pago:</strong> {pedidoSeleccionado.metodo_pago}</p>
                 </div>
 
@@ -273,7 +280,11 @@ function MisPedidos() {
                 <div className="seccion">
                   <h3>🛒 Productos</h3>
                   <div className="items-lista">
-                    {pedidoSeleccionado.items && pedidoSeleccionado.items.map(item => (
+                    {pedidoSeleccionado.items && pedidoSeleccionado.items.map(item => {
+                      const precioNum = typeof item.precio_unitario === 'string' ? parseFloat(item.precio_unitario) : item.precio_unitario;
+                      const subtotalNum = typeof item.subtotal === 'string' ? parseFloat(item.subtotal) : item.subtotal;
+
+                      return (
                       <div key={item.id} className="item-detalle">
                         <div className="item-imagen">
                           <img src={item.imagen_url} alt={item.nombre} />
@@ -281,11 +292,12 @@ function MisPedidos() {
                         <div className="item-info">
                           <h4>{item.nombre}</h4>
                           <p>Cantidad: {item.cantidad}</p>
-                          <p>Precio unitario: ${item.precio_unitario.toFixed(2)}</p>
-                          <p className="subtotal">Subtotal: ${item.subtotal.toFixed(2)}</p>
+                          <p>Precio unitario: ${precioNum.toFixed(2)}</p>
+                          <p className="subtotal">Subtotal: ${subtotalNum.toFixed(2)}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -295,7 +307,8 @@ function MisPedidos() {
               </button>
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
