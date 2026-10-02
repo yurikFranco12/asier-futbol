@@ -1,9 +1,14 @@
+body {
+  background-color: #0f0f0f !important;
+}
+
 .carrito-container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 40px auto;
-  padding: 0 20px;
-  background-color: #0f0f0f;
+  padding: 40px;
+  background-color: #1a1a1a;
   min-height: calc(100vh - 80px);
+  border-radius: 12px;
 }
 
 .carrito-container h2 {
@@ -34,6 +39,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 20px;
 }
 
 .carrito-vacio h2 {
@@ -68,11 +74,11 @@
 }
 
 .carrito-items {
-  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 30px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border: 1px solid #2d2d2d;
 }
 
@@ -197,13 +203,19 @@
 }
 
 .carrito-resumen {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
   color: white;
   padding: 30px;
   border-radius: 12px;
   text-align: right;
   border: 1px solid #2d2d2d;
-  box-shadow: 0 8px 25px rgba(45, 180, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(45, 180, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carrito-resumen:hover {
+  border-color: #2db400;
+  box-shadow: 0 12px 35px rgba(45, 180, 0, 0.25);
 }
 
 .carrito-resumen h3 {
