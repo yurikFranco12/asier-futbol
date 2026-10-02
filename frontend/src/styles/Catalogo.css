@@ -49,30 +49,70 @@
 
 .catalogo-filtros {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   position: relative;
   z-index: 1;
 }
 
-.filtro-activo {
-  background: linear-gradient(135deg, #2db400 0%, #45d600 100%);
-  color: #0f0f0f;
-  padding: 10px 25px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(45, 180, 0, 0.3);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+.filtros-fila {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.filtro-activo:hover {
-  box-shadow: 0 10px 30px rgba(45, 180, 0, 0.5);
-  transform: translateY(-3px);
+.filtros-sub {
+  padding-top: 14px;
+  border-top: 1px solid rgba(45, 180, 0, 0.25);
+}
+
+.filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 20px;
+  border: 1px solid #3a3a3a;
+  background: rgba(15, 15, 15, 0.6);
+  color: #e0e0e0;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filtro-chip:hover {
+  border-color: #2db400;
+  color: #2db400;
+  transform: translateY(-2px);
+}
+
+.filtro-chip.activo {
+  background: linear-gradient(135deg, #2db400 0%, #45d600 100%);
+  border-color: transparent;
+  color: #0f0f0f;
+  box-shadow: 0 5px 15px rgba(45, 180, 0, 0.3);
+}
+
+.filtro-chip-sub {
+  padding: 7px 16px;
+  font-size: 12px;
+  text-transform: none;
+}
+
+.filtro-total {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filtro-chip.activo .filtro-total {
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .catalogo-estado {
@@ -101,9 +141,9 @@
     margin-bottom: 25px;
   }
 
-  .filtro-activo {
+  .filtro-chip {
     font-size: 12px;
-    padding: 8px 18px;
+    padding: 8px 16px;
   }
 }
 
@@ -123,8 +163,12 @@
     margin-bottom: 20px;
   }
 
-  .filtro-activo {
+  .filtros-fila {
+    gap: 8px;
+  }
+
+  .filtro-chip {
     font-size: 11px;
-    padding: 8px 16px;
+    padding: 7px 12px;
   }
 }

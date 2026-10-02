@@ -332,3 +332,24 @@
     margin-bottom: 20px;
   }
 }
+
+.detalle-migas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #808080;
+}
+
+.detalle-migas a {
+  color: #2db400;
+  text-decoration: none;
+}
+
+.detalle-migas a:hover {
+  text-decoration: underline;
+}

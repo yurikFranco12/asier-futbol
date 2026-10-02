@@ -12,6 +12,7 @@ const app = express();
 const authRoutes = require('./routes/auth');
 const stripeRoutes = require('./routes/stripe');
 const productosRoutes = require('./routes/productos');
+const categoriasRoutes = require('./routes/categorias');
 
 // Middleware
 app.use(cors({
@@ -43,6 +44,7 @@ app.use('/api/auth', authRoutes);
 // Rutas de Productos
 app.use('/api/productos', productosRoutes.publico);
 app.use('/api/admin/productos', productosRoutes.admin);
+app.use('/api/categorias', categoriasRoutes);
 
 // Rutas de Stripe
 app.use('/api/stripe', stripeRoutes);

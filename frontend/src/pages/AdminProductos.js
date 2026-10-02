@@ -2,14 +2,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cabecera from '../components/Cabecera';
 import { ContextoAutenticacion } from '../contexto/ContextoAutenticacion';
-import { adminProductos } from '../api/productos';
+import { adminProductos, obtenerCategorias } from '../api/productos';
 import '../styles/AdminProductos.css';
+
+const SIN_CATEGORIA = '__sin_categoria';
 
 const FORMULARIO_VACIO = {
   nombre: '',
   precio: '',
   cantidad_stock: '0',
-  categoria: '',
+  categoria_id: '',
   imagen_url: '',
   descripcion: '',
   caracteristicas: '',
@@ -21,7 +23,7 @@ function aFormulario(p) {
     nombre: p.nombre || '',
     precio: String(p.precio ?? ''),
     cantidad_stock: String(p.cantidad_stock ?? 0),
-    categoria: p.categoria || '',
+    categoria_id: p.categoria_id ? String(p.categoria_id) : '',
     imagen_url: p.imagen_url || '',
     descripcion: p.descripcion || '',
     caracteristicas: (p.caracteristicas || []).join('\n'),
@@ -34,7 +36,7 @@ function aPeticion(f) {
     nombre: f.nombre,
     precio: Number(f.precio),
     cantidad_stock: Number(f.cantidad_stock),
-    categoria: f.categoria,
+    categoria_id: Number(f.categoria_id),
     imagen_url: f.imagen_url,
     descripcion: f.descripcion,
     caracteristicas: f.caracteristicas.split('\n'),
@@ -52,6 +54,8 @@ function AdminProductos() {
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('');
+  const [categorias, setCategorias] = useState([]);
 
   const [editando, setEditando] = useState(null); // null = cerrado, 'nuevo' o id
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
@@ -74,7 +78,11 @@ function AdminProductos() {
   }, [token]);
 
   useEffect(() => {
-    if (esAdmin) cargarProductos();
+    if (!esAdmin) return;
+    cargarProductos();
+    obtenerCategorias()
+      .then(setCategorias)
+      .catch(() => setError('No se pudieron cargar las categorías'));
   }, [esAdmin, cargarProductos]);
 
   const abrirNuevo = () => {
@@ -150,11 +158,17 @@ function AdminProductos() {
   }
 
   const termino = busqueda.trim().toLowerCase();
-  const visibles = productos.filter(p =>
-    !termino ||
-    p.nombre.toLowerCase().includes(termino) ||
-    (p.categoria || '').toLowerCase().includes(termino)
-  );
+  const visibles = productos.filter(p => {
+    const coincideTexto = !termino ||
+      p.nombre.toLowerCase().includes(termino) ||
+      (p.categoria || '').toLowerCase().includes(termino) ||
+      (p.categoria_padre || '').toLowerCase().includes(termino);
+    const coincideCategoria = !filtroCategoria ||
+      (filtroCategoria === SIN_CATEGORIA
+        ? !p.categoria_id
+        : p.categoria_slug === filtroCategoria || p.categoria_padre_slug === filtroCategoria);
+    return coincideTexto && coincideCategoria;
+  });
 
   return (
     <div>
@@ -183,6 +197,23 @@ function AdminProductos() {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
+          <select
+            className="admin-select-filtro"
+            value={filtroCategoria}
+            onChange={(e) => setFiltroCategoria(e.target.value)}
+            aria-label="Filtrar por categoría"
+          >
+            <option value="">Todas las categorías</option>
+            {categorias.map(padre => (
+              <optgroup key={padre.id} label={padre.nombre}>
+                <option value={padre.slug}>Todo {padre.nombre}</option>
+                {padre.hijos.map(hijo => (
+                  <option key={hijo.id} value={hijo.slug}>{hijo.nombre}</option>
+                ))}
+              </optgroup>
+            ))}
+            <option value={SIN_CATEGORIA}>Sin categoría</option>
+          </select>
           <span className="admin-contador">
             {productos.length} productos · {productos.filter(p => !p.activo).length} ocultos
           </span>
@@ -219,7 +250,11 @@ function AdminProductos() {
                         </div>
                       </div>
                     </td>
-                    <td>{p.categoria || '—'}</td>
+                    <td>
+                      {p.categoria
+                        ? <span className="admin-categoria"><small>{p.categoria_padre}</small>{p.categoria}</span>
+                        : <span className="admin-sin-categoria">Sin categoría</span>}
+                    </td>
                     <td className="admin-precio">${p.precio.toFixed(2)}</td>
                     <td className={p.cantidad_stock === 0 ? 'admin-sin-stock' : ''}>{p.cantidad_stock}</td>
                     <td>
@@ -265,8 +300,17 @@ function AdminProductos() {
               </label>
 
               <label className="admin-campo admin-campo-ancho">
-                <span>Categoría</span>
-                <input name="categoria" value={formulario.categoria} onChange={cambiar} placeholder="botas, camisetas, balones..." />
+                <span>Categoría *</span>
+                <select name="categoria_id" value={formulario.categoria_id} onChange={cambiar} required>
+                  <option value="" disabled>Selecciona una subcategoría</option>
+                  {categorias.map(padre => (
+                    <optgroup key={padre.id} label={padre.nombre}>
+                      {padre.hijos.map(hijo => (
+                        <option key={hijo.id} value={hijo.id}>{hijo.nombre}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </label>
 
               <label className="admin-campo admin-campo-ancho">

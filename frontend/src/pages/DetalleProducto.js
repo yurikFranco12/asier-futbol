@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Cabecera from '../components/Cabecera';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 import { obtenerProducto } from '../api/productos';
@@ -63,6 +63,13 @@ function DetalleProducto() {
           </div>
 
           <div className="detalle-info">
+            {producto.categoria && (
+              <nav className="detalle-migas" aria-label="Categoría">
+                <Link to={`/catalogo?categoria=${producto.categoriaPadreSlug}`}>{producto.categoriaPadre}</Link>
+                <span>›</span>
+                <Link to={`/catalogo?categoria=${producto.categoriaSlug}`}>{producto.categoria}</Link>
+              </nav>
+            )}
             <h1>{producto.name}</h1>
 
             <div className="precio-detalle">

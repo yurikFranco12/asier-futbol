@@ -9,6 +9,9 @@ export function aProductoTienda(p) {
     description: p.descripcion,
     caracteristicas: p.caracteristicas || [],
     categoria: p.categoria,
+    categoriaSlug: p.categoria_slug,
+    categoriaPadre: p.categoria_padre,
+    categoriaPadreSlug: p.categoria_padre_slug,
     stock: p.cantidad_stock
   };
 }
@@ -32,6 +35,11 @@ async function peticion(ruta, { metodo = 'GET', token, cuerpo } = {}) {
 export async function obtenerProductos() {
   const datos = await peticion('/api/productos');
   return datos.productos.map(aProductoTienda);
+}
+
+export async function obtenerCategorias() {
+  const datos = await peticion('/api/categorias');
+  return datos.categorias;
 }
 
 export async function obtenerProducto(id) {

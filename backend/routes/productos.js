@@ -2,7 +2,13 @@ const express = require('express');
 const pool = require('../db');
 const { verificarToken, verificarAdmin } = require('../middleware/auth');
 
-const COLUMNAS = 'id, nombre, descripcion, precio, cantidad_stock, categoria, imagen_url, caracteristicas, activo';
+const SELECT_PRODUCTOS = `
+  SELECT p.id, p.nombre, p.descripcion, p.precio, p.cantidad_stock, p.imagen_url, p.caracteristicas, p.activo,
+         p.categoria_id, c.nombre AS categoria, c.slug AS categoria_slug,
+         cp.nombre AS categoria_padre, cp.slug AS categoria_padre_slug
+  FROM productos p
+  LEFT JOIN categorias c ON c.id = p.categoria_id
+  LEFT JOIN categorias cp ON cp.id = c.padre_id`;
 
 function formatear(fila) {
   return {
@@ -12,14 +18,27 @@ function formatear(fila) {
   };
 }
 
-function validarProducto(body) {
+async function buscarPorId(id) {
+  const { rows } = await pool.query(`${SELECT_PRODUCTOS} WHERE p.id = $1`, [id]);
+  return rows[0] ? formatear(rows[0]) : null;
+}
+
+async function validarProducto(body) {
   const nombre = typeof body.nombre === 'string' ? body.nombre.trim() : '';
   const precio = Number(body.precio);
   const stock = Number(body.cantidad_stock ?? 0);
+  const categoriaId = Number(body.categoria_id);
 
   if (!nombre) return { error: 'El nombre es obligatorio' };
   if (!Number.isFinite(precio) || precio < 0) return { error: 'El precio debe ser un número mayor o igual a 0' };
   if (!Number.isInteger(stock) || stock < 0) return { error: 'El stock debe ser un número entero mayor o igual a 0' };
+  if (!Number.isInteger(categoriaId) || categoriaId <= 0) return { error: 'Selecciona una categoría' };
+
+  const { rows } = await pool.query(
+    'SELECT 1 FROM categorias WHERE id = $1 AND padre_id IS NOT NULL',
+    [categoriaId]
+  );
+  if (rows.length === 0) return { error: 'La categoría debe ser una subcategoría existente' };
 
   const caracteristicas = Array.isArray(body.caracteristicas)
     ? body.caracteristicas.map(c => String(c).trim()).filter(Boolean)
@@ -31,7 +50,7 @@ function validarProducto(body) {
       descripcion: body.descripcion?.trim() || null,
       precio,
       cantidad_stock: stock,
-      categoria: body.categoria?.trim() || null,
+      categoria_id: categoriaId,
       imagen_url: body.imagen_url?.trim() || null,
       caracteristicas,
       activo: body.activo !== false
@@ -45,10 +64,8 @@ const publico = express.Router();
 
 publico.get('/', async (req, res) => {
   try {
-    const resultado = await pool.query(
-      `SELECT ${COLUMNAS} FROM productos WHERE activo = TRUE ORDER BY id`
-    );
-    res.json({ success: true, productos: resultado.rows.map(formatear) });
+    const { rows } = await pool.query(`${SELECT_PRODUCTOS} WHERE p.activo = TRUE ORDER BY p.id`);
+    res.json({ success: true, productos: rows.map(formatear) });
   } catch (error) {
     console.error('❌ Error listando productos:', error);
     res.status(500).json({ error: 'Error al obtener productos' });
@@ -57,14 +74,11 @@ publico.get('/', async (req, res) => {
 
 publico.get('/:id', async (req, res) => {
   try {
-    const resultado = await pool.query(
-      `SELECT ${COLUMNAS} FROM productos WHERE id = $1 AND activo = TRUE`,
-      [req.params.id]
-    );
-    if (resultado.rows.length === 0) {
+    const producto = await buscarPorId(req.params.id);
+    if (!producto || !producto.activo) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
-    res.json({ success: true, producto: formatear(resultado.rows[0]) });
+    res.json({ success: true, producto });
   } catch (error) {
     console.error('❌ Error obteniendo producto:', error);
     res.status(500).json({ error: 'Error al obtener el producto' });
@@ -78,8 +92,8 @@ admin.use(verificarToken, verificarAdmin);
 
 admin.get('/', async (req, res) => {
   try {
-    const resultado = await pool.query(`SELECT ${COLUMNAS} FROM productos ORDER BY id`);
-    res.json({ success: true, productos: resultado.rows.map(formatear) });
+    const { rows } = await pool.query(`${SELECT_PRODUCTOS} ORDER BY p.id`);
+    res.json({ success: true, productos: rows.map(formatear) });
   } catch (error) {
     console.error('❌ Error listando productos (admin):', error);
     res.status(500).json({ error: 'Error al obtener productos' });
@@ -87,18 +101,18 @@ admin.get('/', async (req, res) => {
 });
 
 admin.post('/', async (req, res) => {
-  const { error, datos } = validarProducto(req.body);
-  if (error) return res.status(400).json({ error });
-
   try {
-    const resultado = await pool.query(
-      `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria, imagen_url, caracteristicas, activo)
+    const { error, datos } = await validarProducto(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const { rows } = await pool.query(
+      `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria_id, imagen_url, caracteristicas, activo)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING ${COLUMNAS}`,
+       RETURNING id`,
       [datos.nombre, datos.descripcion, datos.precio, datos.cantidad_stock,
-        datos.categoria, datos.imagen_url, datos.caracteristicas, datos.activo]
+        datos.categoria_id, datos.imagen_url, datos.caracteristicas, datos.activo]
     );
-    res.status(201).json({ success: true, producto: formatear(resultado.rows[0]) });
+    res.status(201).json({ success: true, producto: await buscarPorId(rows[0].id) });
   } catch (error) {
     console.error('❌ Error creando producto:', error);
     res.status(500).json({ error: 'Error al crear el producto' });
@@ -106,24 +120,24 @@ admin.post('/', async (req, res) => {
 });
 
 admin.put('/:id', async (req, res) => {
-  const { error, datos } = validarProducto(req.body);
-  if (error) return res.status(400).json({ error });
-
   try {
-    const resultado = await pool.query(
+    const { error, datos } = await validarProducto(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const { rows } = await pool.query(
       `UPDATE productos
-       SET nombre = $1, descripcion = $2, precio = $3, cantidad_stock = $4, categoria = $5,
+       SET nombre = $1, descripcion = $2, precio = $3, cantidad_stock = $4, categoria_id = $5,
            imagen_url = $6, caracteristicas = $7, activo = $8,
            fecha_actualizacion = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
        WHERE id = $9
-       RETURNING ${COLUMNAS}`,
-      [datos.nombre, datos.descripcion, datos.precio, datos.cantidad_stock, datos.categoria,
+       RETURNING id`,
+      [datos.nombre, datos.descripcion, datos.precio, datos.cantidad_stock, datos.categoria_id,
         datos.imagen_url, datos.caracteristicas, datos.activo, req.params.id]
     );
-    if (resultado.rows.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
-    res.json({ success: true, producto: formatear(resultado.rows[0]) });
+    res.json({ success: true, producto: await buscarPorId(rows[0].id) });
   } catch (error) {
     console.error('❌ Error actualizando producto:', error);
     res.status(500).json({ error: 'Error al actualizar el producto' });
@@ -140,19 +154,18 @@ admin.delete('/:id', async (req, res) => {
     );
 
     if (enPedidos.rows.length > 0) {
-      const resultado = await pool.query(
-        `UPDATE productos SET activo = FALSE, updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1 RETURNING ${COLUMNAS}`,
+      const { rows } = await pool.query(
+        'UPDATE productos SET activo = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING id',
         [req.params.id]
       );
-      if (resultado.rows.length === 0) {
+      if (rows.length === 0) {
         return res.status(404).json({ error: 'Producto no encontrado' });
       }
       return res.json({
         success: true,
         modo: 'desactivado',
         mensaje: 'El producto aparece en pedidos anteriores, así que se ha ocultado del catálogo en lugar de borrarse',
-        producto: formatear(resultado.rows[0])
+        producto: await buscarPorId(rows[0].id)
       });
     }
 

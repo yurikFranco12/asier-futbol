@@ -2,6 +2,7 @@ require('dotenv').config();
 const { Client } = require('pg');
 const bcrypt = require('bcrypt');
 const productosIniciales = require('./datos/productosIniciales');
+const insertarCategorias = require('./datos/insertarCategorias');
 
 // Datos de conexión
 const config = {
@@ -61,6 +62,19 @@ async function crearBaseDatos() {
     `);
     console.log('     ✅ USUARIOS creada');
 
+    // Tabla CATEGORIAS (dos niveles: categoría padre y subcategoría)
+    console.log('  • Creando tabla CATEGORIAS...');
+    await clientDB.query(`
+      CREATE TABLE categorias (
+        id SERIAL PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        slug VARCHAR(100) UNIQUE NOT NULL,
+        padre_id INT REFERENCES categorias(id) ON DELETE CASCADE,
+        orden INT NOT NULL DEFAULT 0
+      );
+    `);
+    console.log('     ✅ CATEGORIAS creada');
+
     // Tabla PRODUCTOS
     console.log('  • Creando tabla PRODUCTOS...');
     await clientDB.query(`
@@ -70,7 +84,7 @@ async function crearBaseDatos() {
         descripcion TEXT,
         precio DECIMAL(10, 2) NOT NULL,
         cantidad_stock INT NOT NULL DEFAULT 0,
-        categoria VARCHAR(100),
+        categoria_id INT REFERENCES categorias(id) ON DELETE SET NULL,
         imagen_url VARCHAR(500),
         caracteristicas TEXT[] NOT NULL DEFAULT '{}',
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -156,12 +170,16 @@ async function crearBaseDatos() {
     console.log(`     📧 Email: test@example.com`);
     console.log(`     🔑 Contraseña: ${passwordTest}`);
 
+    // Categorías
+    await insertarCategorias(clientDB);
+    console.log('  ✅ Categorías agregadas');
+
     // Productos de ejemplo
     for (const p of productosIniciales) {
       await clientDB.query(
-        `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria, imagen_url, proveedor, caracteristicas)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [p.nombre, p.descripcion, p.precio, p.cantidad_stock, p.categoria, p.imagen_url, p.proveedor, p.caracteristicas]
+        `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria_id, imagen_url, proveedor, caracteristicas)
+         VALUES ($1, $2, $3, $4, (SELECT id FROM categorias WHERE slug = $5), $6, $7, $8)`,
+        [p.nombre, p.descripcion, p.precio, p.cantidad_stock, p.categoria_slug, p.imagen_url, p.proveedor, p.caracteristicas]
       );
     }
     console.log(`  ✅ ${productosIniciales.length} productos de ejemplo agregados\n`);
@@ -172,7 +190,7 @@ async function crearBaseDatos() {
 
     console.log('📊 Resumen:');
     console.log('  ✅ BD: asier_futbol');
-    console.log('  ✅ Tablas: 5 (usuarios, productos, pedidos, detalles_pedidos, favoritos)');
+    console.log('  ✅ Tablas: 6 (usuarios, categorias, productos, pedidos, detalles_pedidos, favoritos)');
     console.log('  ✅ Índices: 4');
     console.log('  ✅ Usuario test: test@example.com');
     console.log('  ✅ Productos: 6 de ejemplo\n');

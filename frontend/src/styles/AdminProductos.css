@@ -146,6 +146,44 @@ body {
   box-shadow: 0 0 0 3px rgba(45, 180, 0, 0.15);
 }
 
+.admin-select-filtro,
+.admin-campo select {
+  padding: 11px 12px;
+  background: #0f0f0f;
+  border: 1px solid #2d2d2d;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.admin-select-filtro {
+  background: #1a1a1a;
+  min-width: 200px;
+}
+
+.admin-select-filtro:focus,
+.admin-campo select:focus {
+  outline: none;
+  border-color: #2db400;
+  box-shadow: 0 0 0 3px rgba(45, 180, 0, 0.15);
+}
+
+.admin-categoria {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-categoria small {
+  color: #808080;
+  font-size: 11px;
+}
+
+.admin-sin-categoria {
+  color: #ff9800;
+  font-size: 13px;
+}
+
 .admin-contador {
   color: #808080;
   font-size: 13px;
