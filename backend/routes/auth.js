@@ -422,12 +422,16 @@ router.delete('/eliminar-cuenta', verificarToken, async (req, res) => {
 
     // Obtener usuario
     const usuarioResult = await client.query(
-      'SELECT contraseña, email FROM usuarios WHERE id = $1',
+      'SELECT contraseña, email, rol FROM usuarios WHERE id = $1',
       [req.usuario.id]
     );
 
     if (usuarioResult.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    if (usuarioResult.rows[0].rol === 'admin') {
+      return res.status(403).json({ error: 'La cuenta de administrador no se puede eliminar' });
     }
 
     // Verificar contraseña

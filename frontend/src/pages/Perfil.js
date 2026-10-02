@@ -171,12 +171,14 @@ function Perfil() {
               >
                 📦 Mis Pedidos
               </button>
-              <button
-                className={`nav-item ${seccion === 'eliminar' ? 'activo' : ''}`}
-                onClick={() => setSeccion('eliminar')}
-              >
-                ⚠️ Eliminar Cuenta
-              </button>
+              {usuario.rol !== 'admin' && (
+                <button
+                  className={`nav-item ${seccion === 'eliminar' ? 'activo' : ''}`}
+                  onClick={() => setSeccion('eliminar')}
+                >
+                  ⚠️ Eliminar Cuenta
+                </button>
+              )}
               <button
                 className="nav-item logout"
                 onClick={() => {
@@ -323,7 +325,7 @@ function Perfil() {
             )}
 
             {/* SECCIÓN: ELIMINAR CUENTA */}
-            {seccion === 'eliminar' && (
+            {seccion === 'eliminar' && usuario.rol !== 'admin' && (
               <section className="perfil-seccion eliminar-cuenta">
                 <h2>⚠️ Zona de Peligro</h2>
 
