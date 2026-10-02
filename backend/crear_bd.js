@@ -155,12 +155,12 @@ async function crearBaseDatos() {
 
     // Productos de ejemplo
     const productos = [
-      ['Botas Adidas F50', 'Botas de fútbol profesionales', 89.99, 50, 'botas', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300', 'Oberlo'],
-      ['Botas Adidas Predator', 'Botas Predator edición especial', 99.99, 30, 'botas', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300', 'Oberlo'],
-      ['Camiseta FC Barcelona', 'Camiseta oficial Barcelona 2024', 59.99, 100, 'camisetas', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300', 'AliExpress'],
-      ['Balón Adidas Official', 'Balón oficial FIFA', 49.99, 75, 'balones', 'https://images.unsplash.com/photo-1579954614171-52d2b0be5c6b?w=300', 'Oberlo'],
-      ['Espinilleras Nike', 'Protección profesional', 29.99, 60, 'protección', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300', 'AliExpress'],
-      ['Guantes Portero', 'Guantes de portero profesional', 39.99, 40, 'guantes', 'https://images.unsplash.com/photo-1634298228282-7a78ded8dd12?w=300', 'Oberlo']
+      ['Botas Adidas F50', 'Botas de fútbol profesionales', 89.99, 50, 'botas', 'https://www.futbolemotion.com/imagesarticulos/335848/750/bota-adidas-f50-hyperfast-elite-ll-fg-footwear-white-solar-purple-tursol-0.webp', 'Oberlo'],
+      ['Botas Adidas Predator', 'Botas Predator edición especial', 99.99, 30, 'botas', 'https://www.futbolemotion.com/imagesarticulos/291495/750/bota-adidas-predator-elite-ft-fg-lucid-red-core-black-ftwr-white-0.webp', 'Oberlo'],
+      ['Camiseta FC Barcelona', 'Camiseta oficial Barcelona 2026-27', 59.99, 100, 'camisetas', 'https://camisetasfutbolbaloncesto.com/cdn/shop/files/camiseta-local-fc-barcelona-2026-27-2.jpg?v=1783153616&width=1946', 'AliExpress'],
+      ['Balón Adidas Official', 'Balón oficial Adidas Tiro League', 49.99, 75, 'balones', 'https://www.futbolemotion.com/imagesarticulos/192135/grandes/balon-adidas-tiro-league-white-team-colleg-burgundy-team-colleg-red-0.webp', 'Oberlo'],
+      ['Espinilleras Nike', 'Protección profesional', 29.99, 60, 'protección', 'https://media.futbolmania.com/media/catalog/product/cache/1/image/0f330055bc18e2dda592b4a7c3a0ea22/s/p/sp2162-010_espinilleras-de-futbol-nike-j-guard-negro_1_frontal.jpg', 'AliExpress'],
+      ['Guantes Portero', 'Guantes de portero profesional', 79.99, 40, 'guantes', 'https://media.futbolmania.com/media/catalog/product/cache/1/thumbnail/9df78eab33525d08d6e5fb8d27136e95/J/Y/JY6295_guantes-de-portero-color-blanco-adidas-predator-pro_1_dorso-mano-izquierda.jpg', 'Oberlo']
     ];
 
     for (const producto of productos) {
