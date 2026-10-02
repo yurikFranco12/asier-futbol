@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cabecera from './Cabecera';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 import '../styles/Carrito.css';
 
@@ -9,16 +10,21 @@ function Carrito() {
 
   if (carrito.length === 0) {
     return (
-      <div className="carrito-vacio">
-        <h2>Tu carrito está vacío</h2>
-        <p>Añade productos para continuar</p>
-        <button onClick={() => navigate('/')}>Volver a la tienda</button>
+      <div>
+        <Cabecera />
+        <div className="carrito-vacio">
+          <h2>Tu carrito está vacío</h2>
+          <p>Añade productos para continuar</p>
+          <button onClick={() => navigate('/')}>Volver a la tienda</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="carrito-container">
+    <div>
+      <Cabecera />
+      <div className="carrito-container">
       <h2>Mi Carrito</h2>
       <div className="carrito-items">
         {carrito.map(item => (
@@ -45,6 +51,7 @@ function Carrito() {
         <button className="proceder-pago" onClick={() => navigate('/pago')}>
           Proceder al pago
         </button>
+      </div>
       </div>
     </div>
   );
