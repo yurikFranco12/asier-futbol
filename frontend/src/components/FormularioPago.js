@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
+import { ContextoAutenticacion } from '../contexto/ContextoAutenticacion';
 
 const FormularioPago = () => {
   const stripe = useStripe();
