@@ -11,22 +11,23 @@ body {
   border-radius: 12px;
 }
 
-.pago-container h2 {
+.pago-container h1 {
   font-size: 42px;
   color: #ffffff;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-weight: 700;
   position: relative;
   display: inline-block;
+  letter-spacing: 0.5px;
 }
 
-.pago-container h2::after {
+.pago-container h1::after {
   content: '';
   display: block;
-  width: 60px;
-  height: 4px;
-  background: #2db400;
-  margin-top: 12px;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #2db400, #45d600);
+  margin-top: 15px;
   border-radius: 2px;
 }
 
@@ -193,13 +194,187 @@ legend {
   font-weight: 600;
 }
 
+.card-element-wrapper {
+  border: 1px solid #2d2d2d;
+  border-radius: 8px;
+  padding: 14px;
+  background: #0f0f0f;
+  margin-bottom: 15px;
+  transition: all 0.3s;
+}
+
+.card-element-wrapper:focus-within {
+  border-color: #2db400;
+  box-shadow: 0 0 0 3px rgba(45, 180, 0, 0.15);
+  background: #161616;
+}
+
+.fieldset-datos,
+.fieldset-direccion,
+.fieldset-tarjeta {
+  padding: 0 0 25px 0 !important;
+  margin-bottom: 25px !important;
+  border-bottom: 1px solid #2d2d2d !important;
+}
+
+.fieldset-datos:last-of-type,
+.fieldset-direccion:last-of-type,
+.fieldset-tarjeta:last-of-type {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+}
+
+.seguridad-nota {
+  color: #b0b0b0;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #2d2d2d;
+}
+
+.lista-items {
+  margin-bottom: 20px;
+}
+
+.resumen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #2d2d2d;
+  font-size: 14px;
+}
+
+.resumen-item:last-of-type {
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-nombre {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.item-cantidad {
+  color: #808080;
+  font-size: 12px;
+}
+
+.item-precio {
+  color: #2db400;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.resumen-desglose {
+  margin: 20px 0;
+  padding: 15px 0;
+  border-top: 1px solid #2d2d2d;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.desglose-fila {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.desglose-fila:last-child {
+  margin-bottom: 0;
+}
+
+.envio-gratis {
+  color: #2db400;
+  font-weight: 600;
+}
+
 .resumen-total {
+  display: flex;
+  justify-content: space-between;
   padding: 20px 0;
   border-top: 2px solid #2db400;
-  font-size: 20px;
-  color: #2db400;
+  font-size: 18px;
   font-weight: 700;
-  text-align: right;
+}
+
+.precio-total {
+  color: #2db400;
+  font-size: 22px;
+}
+
+.info-seguridad {
+  margin-top: 20px;
+  padding: 15px;
+  background: linear-gradient(135deg, rgba(45, 180, 0, 0.08) 0%, rgba(45, 180, 0, 0.02) 100%);
+  border-left: 3px solid #2db400;
+  border-radius: 6px;
+}
+
+.info-seguridad p {
+  margin: 6px 0;
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.pago-vacio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  background-color: #0f0f0f;
+  padding: 20px;
+}
+
+.mensaje-vacio {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 50px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(45, 180, 0, 0.15);
+  border: 1px solid #2d2d2d;
+  max-width: 500px;
+}
+
+.mensaje-vacio h2 {
+  color: #ffffff;
+  font-size: 32px;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.mensaje-vacio p {
+  color: #b0b0b0;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.mensaje-vacio button {
+  background: linear-gradient(135deg, #2db400 0%, #45d600 100%);
+  color: #0f0f0f;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 10px 30px rgba(45, 180, 0, 0.3);
+}
+
+.mensaje-vacio button:hover {
+  background: linear-gradient(135deg, #45d600 0%, #5ff000 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(45, 180, 0, 0.5);
 }
 
 .pago-exito {
