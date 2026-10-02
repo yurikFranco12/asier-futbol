@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 dotenv.config();
 
 const app = express();
@@ -88,7 +88,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
     const event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_secret'
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
     if (event.type === 'payment_intent.succeeded') {
