@@ -2,116 +2,73 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Cargar variables de entorno antes que todo
 dotenv.config();
 
 const app = express();
 
+// Importar rutas
+const stripeRoutes = require('./routes/stripe');
+
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true
+}));
+
+// Middleware especial para webhook de Stripe (debe estar ANTES que bodyParser.json())
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeRoutes);
+
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Variables para almacenar pedidos (en producción usaremos BD)
-const pedidos = [];
+// ==================== RUTAS ====================
 
-// Ruta de prueba
+// Health check
 app.get('/api/salud', (req, res) => {
-  res.json({ mensaje: 'Servidor funcionando correctamente' });
+  res.json({
+    mensaje: 'Servidor PakSports funcionando correctamente',
+    ambiente: process.env.NODE_ENV || 'development',
+    stripe: process.env.STRIPE_SECRET_KEY ? '✅ Configurado' : '❌ No configurado',
+    bd: process.env.DB_NAME || 'asier_futbol'
+  });
 });
 
-// Crear pedido
-app.post('/api/pedidos', async (req, res) => {
-  try {
-    const { cliente, items, total } = req.body;
+// Rutas de Stripe
+app.use('/api/stripe', stripeRoutes);
 
-    // Validar datos
-    if (!cliente || !items || !total) {
-      return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    // Crear intención de pago con Stripe
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), // Stripe usa centavos
-      currency: 'eur',
-      metadata: {
-        cliente: JSON.stringify(cliente),
-        items: JSON.stringify(items)
-      }
-    });
-
-    // Almacenar pedido
-    const nuevoPedido = {
-      id: pedidos.length + 1,
-      cliente,
-      items,
-      total,
-      estado: 'pendiente',
-      stripePaymentIntentId: paymentIntent.id,
-      fecha: new Date()
-    };
-
-    pedidos.push(nuevoPedido);
-
-    res.json({
-      exito: true,
-      pedidoId: nuevoPedido.id,
-      clientSecret: paymentIntent.client_secret,
-      total: total
-    });
-
-  } catch (error) {
-    console.error('Error creando pedido:', error);
-    res.status(500).json({ error: 'Error procesando pedido' });
-  }
+// Ruta 404
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Ruta no encontrada',
+    path: req.path,
+    method: req.method
+  });
 });
 
-// Obtener todos los pedidos (solo para desarrollo)
-app.get('/api/pedidos', (req, res) => {
-  res.json(pedidos);
+// Manejo de errores global
+app.use((err, req, res, next) => {
+  console.error('❌ Error no capturado:', err);
+  res.status(500).json({
+    error: 'Error interno del servidor',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
-// Obtener pedido por ID
-app.get('/api/pedidos/:id', (req, res) => {
-  const pedido = pedidos.find(p => p.id === parseInt(req.params.id));
-  if (!pedido) {
-    return res.status(404).json({ error: 'Pedido no encontrado' });
-  }
-  res.json(pedido);
-});
+// ==================== INICIAR SERVIDOR ====================
 
-// Confirmar pago (webhook de Stripe)
-app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  
-  try {
-    const event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-
-    if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object;
-      
-      // Actualizar estado del pedido
-      const pedido = pedidos.find(p => p.stripePaymentIntentId === paymentIntent.id);
-      if (pedido) {
-        pedido.estado = 'pagado';
-      }
-    }
-
-    res.json({ recibido: true });
-  } catch (error) {
-    console.error('Error en webhook:', error);
-    res.status(400).send(`Webhook Error: ${error.message}`);
-  }
-});
-
-// Iniciar servidor
 const PUERTO = process.env.PORT || 5000;
+
 app.listen(PUERTO, () => {
-  console.log(`✓ Servidor corriendo en http://localhost:${PUERTO}`);
-  console.log(`✓ CORS habilitado`);
-  console.log(`✓ Stripe en modo TEST`);
+  console.log('\n═══════════════════════════════════════════════════════════');
+  console.log('🚀 Servidor PakSports iniciado correctamente');
+  console.log('═══════════════════════════════════════════════════════════\n');
+  console.log(`✅ Puerto: ${PUERTO}`);
+  console.log(`✅ URL: http://localhost:${PUERTO}`);
+  console.log(`✅ CORS: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
+  console.log(`✅ BD: ${process.env.DB_NAME || 'asier_futbol'}`);
+  console.log(`✅ Stripe: ${process.env.STRIPE_SECRET_KEY ? '🟢 Test Mode' : '🔴 No configurado'}`);
+  console.log(`✅ Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log('\n═══════════════════════════════════════════════════════════\n');
 });
