@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { loadStripe } from '@stripe/js';
+import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import Cabecera from './Cabecera';
 import FormularioPago from './FormularioPago';
