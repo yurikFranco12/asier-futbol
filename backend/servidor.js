@@ -11,6 +11,7 @@ const app = express();
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const stripeRoutes = require('./routes/stripe');
+const productosRoutes = require('./routes/productos');
 
 // Middleware
 app.use(cors({
@@ -38,6 +39,10 @@ app.get('/api/salud', (req, res) => {
 
 // Rutas de Autenticación
 app.use('/api/auth', authRoutes);
+
+// Rutas de Productos
+app.use('/api/productos', productosRoutes.publico);
+app.use('/api/admin/productos', productosRoutes.admin);
 
 // Rutas de Stripe
 app.use('/api/stripe', stripeRoutes);

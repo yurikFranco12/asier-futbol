@@ -140,6 +140,18 @@
   gap: 10px;
 }
 
+.btn-admin {
+  color: #0f0f0f;
+  background: linear-gradient(135deg, #2db400 0%, #45d600 100%);
+  border: none;
+}
+
+.btn-admin:hover {
+  box-shadow: 0 0 15px rgba(45, 180, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-admin,
 .btn-perfil,
 .btn-logout,
 .btn-login {

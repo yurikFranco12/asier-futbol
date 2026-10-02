@@ -1,5 +1,7 @@
+require('dotenv').config();
 const { Client } = require('pg');
 const bcrypt = require('bcrypt');
+const productosIniciales = require('./datos/productosIniciales');
 
 // Datos de conexión
 const config = {
@@ -70,6 +72,7 @@ async function crearBaseDatos() {
         cantidad_stock INT NOT NULL DEFAULT 0,
         categoria VARCHAR(100),
         imagen_url VARCHAR(500),
+        caracteristicas TEXT[] NOT NULL DEFAULT '{}',
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         activo BOOLEAN DEFAULT TRUE,
@@ -154,23 +157,14 @@ async function crearBaseDatos() {
     console.log(`     🔑 Contraseña: ${passwordTest}`);
 
     // Productos de ejemplo
-    const productos = [
-      ['Botas Adidas F50', 'Botas de fútbol profesionales', 89.99, 50, 'botas', 'https://www.futbolemotion.com/imagesarticulos/335848/750/bota-adidas-f50-hyperfast-elite-ll-fg-footwear-white-solar-purple-tursol-0.webp', 'Oberlo'],
-      ['Botas Adidas Predator', 'Botas Predator edición especial', 99.99, 30, 'botas', 'https://www.futbolemotion.com/imagesarticulos/291495/750/bota-adidas-predator-elite-ft-fg-lucid-red-core-black-ftwr-white-0.webp', 'Oberlo'],
-      ['Camiseta FC Barcelona', 'Camiseta oficial Barcelona 2026-27', 59.99, 100, 'camisetas', 'https://camisetasfutbolbaloncesto.com/cdn/shop/files/camiseta-local-fc-barcelona-2026-27-2.jpg?v=1783153616&width=1946', 'AliExpress'],
-      ['Balón Adidas Official', 'Balón oficial Adidas Tiro League', 49.99, 75, 'balones', 'https://www.futbolemotion.com/imagesarticulos/192135/grandes/balon-adidas-tiro-league-white-team-colleg-burgundy-team-colleg-red-0.webp', 'Oberlo'],
-      ['Espinilleras Nike', 'Protección profesional', 29.99, 60, 'protección', 'https://media.futbolmania.com/media/catalog/product/cache/1/image/0f330055bc18e2dda592b4a7c3a0ea22/s/p/sp2162-010_espinilleras-de-futbol-nike-j-guard-negro_1_frontal.jpg', 'AliExpress'],
-      ['Guantes Portero', 'Guantes de portero profesional', 79.99, 40, 'guantes', 'https://media.futbolmania.com/media/catalog/product/cache/1/thumbnail/9df78eab33525d08d6e5fb8d27136e95/J/Y/JY6295_guantes-de-portero-color-blanco-adidas-predator-pro_1_dorso-mano-izquierda.jpg', 'Oberlo']
-    ];
-
-    for (const producto of productos) {
+    for (const p of productosIniciales) {
       await clientDB.query(
-        `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria, imagen_url, proveedor)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        producto
+        `INSERT INTO productos (nombre, descripcion, precio, cantidad_stock, categoria, imagen_url, proveedor, caracteristicas)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [p.nombre, p.descripcion, p.precio, p.cantidad_stock, p.categoria, p.imagen_url, p.proveedor, p.caracteristicas]
       );
     }
-    console.log('  ✅ 6 productos de ejemplo agregados\n');
+    console.log(`  ✅ ${productosIniciales.length} productos de ejemplo agregados\n`);
 
     console.log('═══════════════════════════════════════════════════════════');
     console.log('🎉 ¡BASE DE DATOS CREADA EXITOSAMENTE!');

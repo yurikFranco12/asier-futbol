@@ -29,6 +29,11 @@ function Cabecera() {
 
           {estaLogueado ? (
             <div className="usuario-menu">
+              {usuario.rol === 'admin' && (
+                <button className="btn-admin" onClick={() => navigate('/admin')}>
+                  ⚙️ Admin
+                </button>
+              )}
               <button className="btn-perfil" onClick={() => navigate('/perfil')}>
                 👤 {usuario.nombre_completo.split(' ')[0]}
               </button>

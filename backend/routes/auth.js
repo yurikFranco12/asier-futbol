@@ -1,19 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
-
-// Conexión a BD
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'admin',
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'asier_futbol'
-});
-
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta_super_segura_2024';
+const pool = require('../db');
+const { JWT_SECRET, verificarToken } = require('../middleware/auth');
 
 // ==================== REGISTRO ====================
 
@@ -496,30 +486,5 @@ router.delete('/eliminar-cuenta', verificarToken, async (req, res) => {
     client.release();
   }
 });
-
-// ==================== MIDDLEWARE DE VERIFICACIÓN ====================
-
-/**
- * Middleware para verificar JWT
- */
-function verificarToken(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({
-      error: 'Token no proporcionado'
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.usuario = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      error: 'Token inválido o expirado'
-    });
-  }
-}
 
 module.exports = router;

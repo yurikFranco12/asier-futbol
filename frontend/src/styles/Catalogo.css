@@ -75,6 +75,17 @@
   transform: translateY(-3px);
 }
 
+.catalogo-estado {
+  text-align: center;
+  color: #b0b0b0;
+  padding: 60px 20px;
+  font-size: 16px;
+}
+
+.catalogo-error {
+  color: #ff6b6b;
+}
+
 @media (max-width: 768px) {
   .catalogo-header {
     padding: 60px 20px;
