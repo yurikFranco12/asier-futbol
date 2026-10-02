@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cabecera from './Cabecera';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 import '../styles/Pago.css';
 
@@ -66,19 +67,24 @@ function Pago() {
 
   if (exito) {
     return (
-      <div className="pago-exito">
-        <div className="mensaje-exito">
-          <h2>✓ Pedido realizado con éxito</h2>
-          <p>Tu número de pedido es: <strong>#{pedidoId}</strong></p>
-          <p>Recibirás un email de confirmación próximamente</p>
-          <button onClick={() => navigate('/')}>Volver a la tienda</button>
+      <div>
+        <Cabecera />
+        <div className="pago-exito">
+          <div className="mensaje-exito">
+            <h2>✓ Pedido realizado con éxito</h2>
+            <p>Tu número de pedido es: <strong>#{pedidoId}</strong></p>
+            <p>Recibirás un email de confirmación próximamente</p>
+            <button onClick={() => navigate('/')}>Volver a la tienda</button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="pago-container">
+    <div>
+      <Cabecera />
+      <div className="pago-container">
       <h2>Checkout - Finalizar compra</h2>
       
       <div className="pago-contenido">
@@ -177,6 +183,7 @@ function Pago() {
             <strong>Total: ${obtenerTotal()}</strong>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

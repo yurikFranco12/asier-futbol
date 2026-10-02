@@ -1,149 +1,271 @@
+body {
+  background-color: #0f0f0f !important;
+}
+
 .pago-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 40px auto;
-  padding: 0 20px;
+  padding: 40px;
+  background-color: #1a1a1a;
+  min-height: calc(100vh - 80px);
+  border-radius: 12px;
 }
 
 .pago-container h2 {
-  font-size: 28px;
-  color: #2D5016;
-  margin-bottom: 30px;
+  font-size: 42px;
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+}
+
+.pago-container h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #2db400;
+  margin-top: 12px;
+  border-radius: 2px;
 }
 
 .pago-contenido {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 30px;
+  gap: 40px;
 }
 
 .formulario-pago {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  padding: 35px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2d2d2d;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.formulario-pago:hover {
+  border-color: rgba(45, 180, 0, 0.3);
+  box-shadow: 0 12px 35px rgba(45, 180, 0, 0.1);
 }
 
 fieldset {
   border: none;
-  padding: 0 0 20px 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  padding: 0 0 25px 0;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #2d2d2d;
 }
 
 fieldset:last-of-type {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 legend {
-  font-weight: bold;
-  color: #2D5016;
-  margin-bottom: 15px;
-  font-size: 14px;
+  font-weight: 700;
+  color: #2db400;
+  margin-bottom: 20px;
+  font-size: 13px;
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .formulario-pago input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 15px;
+  border: 1px solid #2d2d2d;
+  border-radius: 8px;
   font-size: 14px;
+  background: #0f0f0f;
+  color: #ffffff;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.formulario-pago input::placeholder {
+  color: #808080;
 }
 
 .formulario-pago input:focus {
   outline: none;
-  border-color: #2D5016;
-  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+  border-color: #2db400;
+  box-shadow: 0 0 0 3px rgba(45, 180, 0, 0.15);
+  background: #161616;
 }
 
-.fila-pago {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.fila-pago input {
+.info-test {
+  background: linear-gradient(135deg, rgba(45, 180, 0, 0.08) 0%, rgba(45, 180, 0, 0.02) 100%);
+  border-left: 3px solid #2db400;
+  padding: 12px 15px;
+  border-radius: 6px;
+  color: #b0b0b0;
+  font-size: 13px;
   margin-bottom: 0;
+  margin-top: -10px;
+}
+
+.error-mensaje {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.02) 100%);
+  border-left: 3px solid #f44336;
+  color: #ff6b6b;
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .boton-pagar {
   width: 100%;
-  padding: 15px;
-  background-color: #D4AF37;
-  color: #1a3d0a;
+  padding: 16px;
+  background-color: #2db400;
+  color: #0f0f0f;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .boton-pagar:hover:not(:disabled) {
-  transform: scale(1.02);
+  background-color: #45d600;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(45, 180, 0, 0.3);
+}
+
+.boton-pagar:active:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .boton-pagar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background-color: #999;
 }
 
 .resumen-pedido {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  padding: 30px;
+  border-radius: 12px;
   height: fit-content;
   position: sticky;
-  top: 20px;
+  top: 100px;
+  border: 1px solid #2d2d2d;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+
+.resumen-pedido:hover {
+  border-color: #2db400;
+  box-shadow: 0 12px 35px rgba(45, 180, 0, 0.15);
 }
 
 .resumen-pedido h3 {
-  color: #2D5016;
-  margin: 0 0 15px 0;
+  color: #2db400;
+  margin: 0 0 20px 0;
   font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
 .resumen-item {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 0;
+  border-bottom: 1px solid #2d2d2d;
   font-size: 14px;
+  color: #b0b0b0;
+}
+
+.resumen-item:last-of-type {
+  border-bottom: none;
+}
+
+.resumen-item span:last-child {
+  color: #2db400;
+  font-weight: 600;
 }
 
 .resumen-total {
-  padding: 15px 0;
-  border-top: 2px solid #2D5016;
-  font-size: 18px;
-  color: #2D5016;
+  padding: 20px 0;
+  border-top: 2px solid #2db400;
+  font-size: 20px;
+  color: #2db400;
+  font-weight: 700;
+  text-align: right;
 }
 
 .pago-exito {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
+  min-height: calc(100vh - 80px);
+  background-color: #0f0f0f;
+  padding: 20px;
 }
 
 .mensaje-exito {
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 50px;
+  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 20px 60px rgba(45, 180, 0, 0.15);
+  border: 1px solid #2db400;
+  max-width: 500px;
 }
 
 .mensaje-exito h2 {
-  color: #27ae60;
-  font-size: 28px;
-  margin-bottom: 20px;
+  color: #2db400;
+  font-size: 36px;
+  margin-bottom: 25px;
+  font-weight: 700;
 }
 
 .mensaje-exito p {
-  color: #555;
-  margin: 10px 0;
+  color: #b0b0b0;
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.mensaje-exito strong {
+  color: #2db400;
+  font-weight: 700;
+}
+
+.mensaje-exito button {
+  background: #2db400;
+  color: #0f0f0f;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 30px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mensaje-exito button:hover {
+  background-color: #45d600;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(45, 180, 0, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .resumen-pedido {
+    position: static;
+    top: auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -151,7 +273,56 @@ legend {
     grid-template-columns: 1fr;
   }
 
+  .pago-container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .pago-container h2 {
+    font-size: 28px;
+  }
+
+  .formulario-pago {
+    padding: 25px;
+  }
+
   .resumen-pedido {
-    position: static;
+    padding: 25px;
+  }
+
+  .mensaje-exito {
+    padding: 30px;
+  }
+
+  .mensaje-exito h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pago-container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  .formulario-pago {
+    padding: 15px;
+  }
+
+  .formulario-pago input {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .resumen-pedido {
+    padding: 15px;
+  }
+
+  .resumen-pedido h3 {
+    font-size: 14px;
+  }
+
+  .mensaje-exito {
+    padding: 20px;
   }
 }
