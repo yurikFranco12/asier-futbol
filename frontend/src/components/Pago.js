@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import Cabecera from './Cabecera';
 import FormularioPago from './FormularioPago';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
+import { ContextoAutenticacion } from '../contexto/ContextoAutenticacion';
 import '../styles/Pago.css';
 
 // Inicializar Stripe con clave pública
@@ -12,7 +14,27 @@ const stripePromise = loadStripe(
 );
 
 function Pago() {
+  const navigate = useNavigate();
+  const { estaLogueado } = useContext(ContextoAutenticacion);
   const { carrito, obtenerTotal } = useContext(ContextoCarrito);
+
+  // Proteger ruta: solo usuarios logueados
+  if (!estaLogueado) {
+    return (
+      <div>
+        <Cabecera />
+        <div className="pago-vacio">
+          <div className="mensaje-vacio">
+            <h2>🔐 Debes iniciar sesión para comprar</h2>
+            <p>Por tu seguridad, necesitamos que tengas una cuenta activa</p>
+            <button onClick={() => navigate('/autenticacion')}>
+              Iniciar Sesión o Registrarse
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (carrito.length === 0) {
     return (

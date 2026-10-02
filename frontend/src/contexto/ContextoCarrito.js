@@ -43,6 +43,10 @@ export function ProveedorCarrito({ children }) {
     return carrito.reduce((total, item) => total + (item.price * item.cantidad), 0).toFixed(2);
   };
 
+  const vaciarCarrito = () => {
+    setCarrito([]);
+  };
+
   return (
     <ContextoCarrito.Provider value={{
       carrito,
@@ -50,7 +54,8 @@ export function ProveedorCarrito({ children }) {
       eliminarDelCarrito,
       aumentarCantidad,
       disminuirCantidad,
-      obtenerTotal
+      obtenerTotal,
+      vaciarCarrito
     }}>
       {children}
     </ContextoCarrito.Provider>

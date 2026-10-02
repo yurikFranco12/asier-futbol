@@ -7,7 +7,8 @@ const FormularioPago = () => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
-  const { carrito, obtenerTotal, carrito: carritoActual } = useContext(ContextoCarrito);
+  const { usuario } = useContext(ContextoAutenticacion);
+  const { carrito, obtenerTotal, vaciarCarrito } = useContext(ContextoCarrito);
 
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
@@ -63,7 +64,7 @@ const FormularioPago = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            usuario_id: 1, // TODO: Cambiar por usuario logueado
+            usuario_id: usuario.id,
             items: carrito.map(item => ({
               id: item.id,
               name: item.name,
@@ -118,7 +119,7 @@ const FormularioPago = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               paymentIntentId: paymentIntentId,
-              usuario_id: 1, // TODO: Cambiar por usuario logueado
+              usuario_id: usuario.id,
               items: carrito.map(item => ({
                 id: item.id,
                 price: item.price,
@@ -138,9 +139,7 @@ const FormularioPago = () => {
         const confirmData = await confirmResponse.json();
         setPedidoId(confirmData.pedidoId);
         setExito(true);
-
-        // Limpiar carrito
-        // TODO: Implementar vaciar carrito
+        vaciarCarrito();
 
       } else {
         setError('El pago no fue completado');
