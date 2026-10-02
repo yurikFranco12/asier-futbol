@@ -166,6 +166,12 @@ function Perfil() {
                 🔑 Cambiar Contraseña
               </button>
               <button
+                className="nav-item"
+                onClick={() => navigate('/mis-pedidos')}
+              >
+                📦 Mis Pedidos
+              </button>
+              <button
                 className={`nav-item ${seccion === 'eliminar' ? 'activo' : ''}`}
                 onClick={() => setSeccion('eliminar')}
               >

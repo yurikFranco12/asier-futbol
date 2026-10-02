@@ -8,6 +8,7 @@ import SobreNosotros from './pages/SobreNosotros';
 import DetalleProducto from './pages/DetalleProducto';
 import Autenticacion from './pages/Autenticacion';
 import Perfil from './pages/Perfil';
+import MisPedidos from './pages/MisPedidos';
 import Carrito from './components/Carrito';
 import Pago from './components/Pago';
 import Cabecera from './components/Cabecera';
@@ -26,6 +27,7 @@ function App() {
               <Route path="/producto/:id" element={<DetalleProducto/>} />
               <Route path="/autenticacion" element={<Autenticacion/>} />
               <Route path="/perfil" element={<Perfil/>} />
+              <Route path="/mis-pedidos" element={<MisPedidos/>} />
               <Route path="/carrito" element={<Carrito />} />
               <Route path="/pago" element={<Pago />} />
             </Routes>

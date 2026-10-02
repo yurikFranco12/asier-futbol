@@ -316,6 +316,102 @@ router.post('/cambiar-contraseña', verificarToken, async (req, res) => {
   }
 });
 
+// ==================== MIS PEDIDOS ====================
+
+/**
+ * GET /api/auth/mis-pedidos
+ * Obtener todos los pedidos del usuario logueado
+ */
+router.get('/mis-pedidos', verificarToken, async (req, res) => {
+  try {
+    // Obtener pedidos con sus detalles
+    const resultado = await pool.query(
+      `SELECT
+        p.id,
+        p.estado,
+        p.total,
+        p.fecha_pedido,
+        p.fecha_entrega,
+        p.direccion_envio,
+        p.metodo_pago,
+        COUNT(dp.id) as cantidad_items
+       FROM pedidos p
+       LEFT JOIN detalles_pedidos dp ON p.id = dp.pedido_id
+       WHERE p.usuario_id = $1
+       GROUP BY p.id
+       ORDER BY p.fecha_pedido DESC`,
+      [req.usuario.id]
+    );
+
+    res.json({
+      success: true,
+      pedidos: resultado.rows
+    });
+
+  } catch (error) {
+    console.error('❌ Error obteniendo pedidos:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/auth/mi-pedido/:id
+ * Obtener detalles completos de un pedido específico
+ */
+router.get('/mi-pedido/:id', verificarToken, async (req, res) => {
+  try {
+    const pedidoId = req.params.id;
+
+    // Verificar que el pedido pertenece al usuario
+    const verificacion = await pool.query(
+      'SELECT usuario_id FROM pedidos WHERE id = $1',
+      [pedidoId]
+    );
+
+    if (verificacion.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    if (verificacion.rows[0].usuario_id !== req.usuario.id) {
+      return res.status(403).json({ error: 'No tienes acceso a este pedido' });
+    }
+
+    // Obtener detalles del pedido
+    const pedido = await pool.query(
+      `SELECT * FROM pedidos WHERE id = $1`,
+      [pedidoId]
+    );
+
+    // Obtener items del pedido
+    const items = await pool.query(
+      `SELECT
+        dp.id,
+        dp.producto_id,
+        dp.cantidad,
+        dp.precio_unitario,
+        dp.subtotal,
+        pr.nombre,
+        pr.imagen_url
+       FROM detalles_pedidos dp
+       JOIN productos pr ON dp.producto_id = pr.id
+       WHERE dp.pedido_id = $1`,
+      [pedidoId]
+    );
+
+    res.json({
+      success: true,
+      pedido: {
+        ...pedido.rows[0],
+        items: items.rows
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error obteniendo detalles del pedido:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ==================== ELIMINAR CUENTA ====================
 
 /**
