@@ -5,17 +5,17 @@ export const ContextoCarrito = createContext();
 export function ProveedorCarrito({ children }) {
   const [carrito, setCarrito] = useState([]);
 
-  const agregarAlCarrito = (producto) => {
+  const agregarAlCarrito = (producto, cantidadAgregada = 1) => {
     const existente = carrito.find(item => item.id === producto.id);
-    
+
     if (existente) {
       setCarrito(carrito.map(item =>
         item.id === producto.id
-          ? { ...item, cantidad: item.cantidad + 1 }
+          ? { ...item, cantidad: item.cantidad + cantidadAgregada }
           : item
       ));
     } else {
-      setCarrito([...carrito, { ...producto, cantidad: 1 }]);
+      setCarrito([...carrito, { ...producto, cantidad: cantidadAgregada }]);
     }
   };
 

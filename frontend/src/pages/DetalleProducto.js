@@ -113,9 +113,7 @@ function DetalleProducto() {
   }
 
   const handleAgregarAlCarrito = () => {
-    for (let i = 0; i < cantidad; i++) {
-      agregarAlCarrito(producto);
-    }
+    agregarAlCarrito(producto, cantidad);
     navigate('/carrito');
   };
 
