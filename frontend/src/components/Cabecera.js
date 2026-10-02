@@ -17,7 +17,7 @@ function Cabecera() {
         </div>
         <nav className="nav">
           <a onClick={(e) => { e.preventDefault(); navigate('/'); }}>Inicio</a>
-          <a onClick={(e) => { e.preventDefault(); navigate('/'); }}>Catálogo</a>
+          <a onClick={(e) => { e.preventDefault(); navigate('/catalogo'); }}>Catálogo</a>
           <a onClick={(e) => { e.preventDefault(); navigate('/sobre-nosotros'); }}>Sobre nosotros</a>
         </nav>
         <div className="cart-icon" onClick={() => navigate('/carrito')}>

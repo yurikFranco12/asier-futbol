@@ -1,0 +1,119 @@
+.catalogo-container {
+  background-color: #0f0f0f;
+  min-height: calc(100vh - 80px);
+  padding-top: 0;
+}
+
+.catalogo-header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  padding: 80px 20px;
+  text-align: center;
+  border-bottom: 2px solid #2db400;
+  position: relative;
+  overflow: hidden;
+}
+
+.catalogo-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(45, 180, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(45, 180, 0, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.catalogo-header h1 {
+  font-size: 52px;
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 4px 20px rgba(45, 180, 0, 0.3);
+}
+
+.catalogo-header p {
+  font-size: 18px;
+  color: #b0b0b0;
+  margin: 0 0 30px 0;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.3px;
+}
+
+.catalogo-filtros {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.filtro-activo {
+  background: linear-gradient(135deg, #2db400 0%, #45d600 100%);
+  color: #0f0f0f;
+  padding: 10px 25px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(45, 180, 0, 0.3);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.filtro-activo:hover {
+  box-shadow: 0 10px 30px rgba(45, 180, 0, 0.5);
+  transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+  .catalogo-header {
+    padding: 60px 20px;
+  }
+
+  .catalogo-header h1 {
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  .catalogo-header p {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+
+  .filtro-activo {
+    font-size: 12px;
+    padding: 8px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalogo-header {
+    padding: 40px 15px;
+  }
+
+  .catalogo-header h1 {
+    font-size: 28px;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .catalogo-header p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .filtro-activo {
+    font-size: 11px;
+    padding: 8px 16px;
+  }
+}
