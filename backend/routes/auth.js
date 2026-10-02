@@ -1,89 +1,179 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { JWT_SECRET, verificarToken } = require('../middleware/auth');
+const { enviarVerificacion } = require('../services/email');
+
+// ==================== HELPERS DE SESIÓN Y VERIFICACIÓN ====================
+
+const HORAS_VALIDEZ_VERIFICACION = 24;
+
+function crearSesion(usuario) {
+  const token = jwt.sign(
+    { id: usuario.id, email: usuario.email },
+    JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+  return {
+    token,
+    usuario: {
+      id: usuario.id,
+      email: usuario.email,
+      nombre_completo: usuario.nombre_completo,
+      telefono: usuario.telefono,
+      direccion: usuario.direccion,
+      ciudad: usuario.ciudad,
+      codigo_postal: usuario.codigo_postal,
+      rol: usuario.rol,
+      fecha_registro: usuario.fecha_registro
+    }
+  };
+}
+
+// Only the SHA-256 of the token is stored, so a DB leak doesn't expose usable links.
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+async function generarYEnviarVerificacion(usuario) {
+  const token = crypto.randomBytes(32).toString('hex');
+  await pool.query(
+    `UPDATE usuarios
+     SET token_verificacion = $1,
+         token_verificacion_expira = NOW() + ($2 || ' hours')::interval
+     WHERE id = $3`,
+    [hashToken(token), String(HORAS_VALIDEZ_VERIFICACION), usuario.id]
+  );
+  await enviarVerificacion({ email: usuario.email, nombre: usuario.nombre_completo, token });
+}
 
 // ==================== REGISTRO ====================
 
 /**
  * POST /api/auth/register
- * Registrar nuevo usuario
+ * Crea la cuenta sin verificar y envía el email de confirmación.
+ * No inicia sesión: eso ocurre al confirmar el email.
  */
 router.post('/register', async (req, res) => {
-  const client = await pool.connect();
-
   try {
     const { email, contraseña, nombre_completo, telefono } = req.body;
 
-    // Validación
     if (!email || !contraseña || !nombre_completo) {
-      return res.status(400).json({
-        error: 'Email, contraseña y nombre son requeridos'
-      });
+      return res.status(400).json({ error: 'Email, contraseña y nombre son requeridos' });
     }
 
     if (contraseña.length < 6) {
-      return res.status(400).json({
-        error: 'La contraseña debe tener al menos 6 caracteres'
-      });
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
-    // Verificar si el usuario ya existe
-    const usuarioExistente = await client.query(
-      'SELECT id FROM usuarios WHERE email = $1',
-      [email]
-    );
+    const emailNormalizado = email.trim().toLowerCase();
 
+    const usuarioExistente = await pool.query('SELECT id FROM usuarios WHERE LOWER(email) = $1', [emailNormalizado]);
     if (usuarioExistente.rows.length > 0) {
-      return res.status(400).json({
-        error: 'Este email ya está registrado'
-      });
+      return res.status(400).json({ error: 'Este email ya está registrado' });
     }
 
-    // Hashear contraseña
     const contraseñaHasheada = await bcrypt.hash(contraseña, 10);
 
-    // Insertar usuario
-    const resultado = await client.query(
-      `INSERT INTO usuarios (email, contraseña, nombre_completo, telefono, rol, activo)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, email, nombre_completo, telefono, rol, fecha_registro`,
-      [email, contraseñaHasheada, nombre_completo, telefono || null, 'cliente', true]
+    const resultado = await pool.query(
+      `INSERT INTO usuarios (email, contraseña, nombre_completo, telefono, rol, activo, email_verificado)
+       VALUES ($1, $2, $3, $4, 'cliente', TRUE, FALSE)
+       RETURNING id, email, nombre_completo`,
+      [emailNormalizado, contraseñaHasheada, nombre_completo, telefono || null]
     );
 
-    const usuario = resultado.rows[0];
-
-    // Generar JWT
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
+    let emailEnviado = true;
+    try {
+      await generarYEnviarVerificacion(resultado.rows[0]);
+    } catch (errorEmail) {
+      emailEnviado = false;
+      console.error('❌ Error enviando email de verificación:', errorEmail.message);
+    }
 
     res.status(201).json({
       success: true,
-      mensaje: 'Usuario registrado exitosamente',
-      token: token,
-      usuario: {
-        id: usuario.id,
-        email: usuario.email,
-        nombre_completo: usuario.nombre_completo,
-        telefono: usuario.telefono,
-        rol: usuario.rol,
-        fecha_registro: usuario.fecha_registro
-      }
+      emailEnviado,
+      email: emailNormalizado,
+      mensaje: emailEnviado
+        ? 'Cuenta creada. Revisa tu email para confirmarla.'
+        : 'Cuenta creada, pero no pudimos enviar el email de confirmación. Inténtalo de nuevo con "Reenviar email".'
     });
 
   } catch (error) {
     console.error('❌ Error en registro:', error);
-    res.status(500).json({
-      error: 'Error al registrar usuario',
-      details: error.message
-    });
-  } finally {
-    client.release();
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
+
+// ==================== VERIFICAR EMAIL ====================
+
+/**
+ * POST /api/auth/verificar-email
+ * Confirma el email con el token del enlace e inicia sesión.
+ */
+router.post('/verificar-email', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'Enlace de verificación inválido' });
+    }
+
+    const resultado = await pool.query(
+      `UPDATE usuarios
+       SET email_verificado = TRUE, token_verificacion = NULL, token_verificacion_expira = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE token_verificacion = $1 AND token_verificacion_expira > NOW()
+       RETURNING *`,
+      [hashToken(token)]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(400).json({
+        error: 'El enlace no es válido o ha caducado. Solicita uno nuevo desde la página de inicio de sesión.'
+      });
+    }
+
+    res.json({ success: true, mensaje: 'Email confirmado', ...crearSesion(resultado.rows[0]) });
+
+  } catch (error) {
+    console.error('❌ Error verificando email:', error);
+    res.status(500).json({ error: 'Error al verificar el email' });
+  }
+});
+
+/**
+ * POST /api/auth/reenviar-verificacion
+ * Siempre responde lo mismo, para no revelar qué emails están registrados.
+ */
+router.post('/reenviar-verificacion', async (req, res) => {
+  const respuesta = {
+    success: true,
+    mensaje: 'Si el email está registrado y pendiente de confirmar, te hemos enviado un nuevo enlace.'
+  };
+
+  try {
+    const email = (req.body.email || '').trim().toLowerCase();
+    if (!email) {
+      return res.status(400).json({ error: 'Email requerido' });
+    }
+
+    const resultado = await pool.query(
+      'SELECT id, email, nombre_completo FROM usuarios WHERE LOWER(email) = $1 AND email_verificado = FALSE',
+      [email]
+    );
+
+    if (resultado.rows.length > 0) {
+      await generarYEnviarVerificacion(resultado.rows[0]);
+    }
+
+    res.json(respuesta);
+
+  } catch (error) {
+    console.error('❌ Error reenviando verificación:', error);
+    res.status(500).json({ error: 'No se pudo enviar el email. Inténtalo más tarde.' });
   }
 });
 
@@ -97,73 +187,42 @@ router.post('/login', async (req, res) => {
   try {
     const { email, contraseña } = req.body;
 
-    // Validación
     if (!email || !contraseña) {
-      return res.status(400).json({
-        error: 'Email y contraseña requeridos'
-      });
+      return res.status(400).json({ error: 'Email y contraseña requeridos' });
     }
 
-    // Buscar usuario
     const resultado = await pool.query(
-      'SELECT * FROM usuarios WHERE email = $1',
-      [email]
+      'SELECT * FROM usuarios WHERE LOWER(email) = $1',
+      [email.trim().toLowerCase()]
     );
 
     if (resultado.rows.length === 0) {
-      return res.status(401).json({
-        error: 'Email o contraseña incorrectos'
-      });
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
     const usuario = resultado.rows[0];
 
-    // Verificar contraseña
     const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
-
     if (!contraseñaValida) {
-      return res.status(401).json({
-        error: 'Email o contraseña incorrectos'
-      });
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    // Verificar si el usuario está activo
     if (!usuario.activo) {
-      return res.status(401).json({
-        error: 'Esta cuenta ha sido desactivada'
+      return res.status(401).json({ error: 'Esta cuenta ha sido desactivada' });
+    }
+
+    if (!usuario.email_verificado) {
+      return res.status(403).json({
+        error: 'Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.',
+        codigo: 'EMAIL_NO_VERIFICADO'
       });
     }
 
-    // Generar JWT
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-
-    res.json({
-      success: true,
-      mensaje: 'Sesión iniciada exitosamente',
-      token: token,
-      usuario: {
-        id: usuario.id,
-        email: usuario.email,
-        nombre_completo: usuario.nombre_completo,
-        telefono: usuario.telefono,
-        direccion: usuario.direccion,
-        ciudad: usuario.ciudad,
-        codigo_postal: usuario.codigo_postal,
-        rol: usuario.rol,
-        fecha_registro: usuario.fecha_registro
-      }
-    });
+    res.json({ success: true, mensaje: 'Sesión iniciada exitosamente', ...crearSesion(usuario) });
 
   } catch (error) {
     console.error('❌ Error en login:', error);
-    res.status(500).json({
-      error: 'Error al iniciar sesión',
-      details: error.message
-    });
+    res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 });
 

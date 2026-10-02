@@ -39,15 +39,50 @@ export function ProveedorAutenticacion({ children }) {
         throw new Error(datos.error || 'Error en el registro');
       }
 
-      // Guardar token y usuario
-      localStorage.setItem('token', datos.token);
-      localStorage.setItem('usuario', JSON.stringify(datos.usuario));
+      return { success: true, email: datos.email, emailEnviado: datos.emailEnviado, mensaje: datos.mensaje };
 
-      setToken(datos.token);
-      setUsuario(datos.usuario);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 
+  const guardarSesion = (datos) => {
+    localStorage.setItem('token', datos.token);
+    localStorage.setItem('usuario', JSON.stringify(datos.usuario));
+    setToken(datos.token);
+    setUsuario(datos.usuario);
+  };
+
+  const verificarEmail = async (tokenVerificacion) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/verificar-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tokenVerificacion })
+      });
+      const datos = await response.json();
+      if (!response.ok) {
+        throw new Error(datos.error || 'No se pudo verificar el email');
+      }
+      guardarSesion(datos);
       return { success: true, usuario: datos.usuario };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 
+  const reenviarVerificacion = async (email) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/reenviar-verificacion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const datos = await response.json();
+      if (!response.ok) {
+        throw new Error(datos.error || 'No se pudo reenviar el email');
+      }
+      return { success: true, mensaje: datos.mensaje };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -64,16 +99,10 @@ export function ProveedorAutenticacion({ children }) {
       const datos = await response.json();
 
       if (!response.ok) {
-        throw new Error(datos.error || 'Error al iniciar sesión');
+        return { success: false, error: datos.error || 'Error al iniciar sesión', codigo: datos.codigo };
       }
 
-      // Guardar token y usuario
-      localStorage.setItem('token', datos.token);
-      localStorage.setItem('usuario', JSON.stringify(datos.usuario));
-
-      setToken(datos.token);
-      setUsuario(datos.usuario);
-
+      guardarSesion(datos);
       return { success: true, usuario: datos.usuario };
 
     } catch (error) {
@@ -175,6 +204,8 @@ export function ProveedorAutenticacion({ children }) {
       cargando,
       estaLogueado: !!usuario,
       registro,
+      verificarEmail,
+      reenviarVerificacion,
       login,
       logout,
       actualizarPerfil,

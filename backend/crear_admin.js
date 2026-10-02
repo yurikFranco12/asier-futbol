@@ -14,10 +14,11 @@ async function crearAdmin() {
   const hash = await bcrypt.hash(contraseña, 10);
 
   const resultado = await pool.query(
-    `INSERT INTO usuarios (email, contraseña, nombre_completo, rol, activo)
-     VALUES ($1, $2, 'Administrador', 'admin', TRUE)
+    `INSERT INTO usuarios (email, contraseña, nombre_completo, rol, activo, email_verificado)
+     VALUES ($1, $2, 'Administrador', 'admin', TRUE, TRUE)
      ON CONFLICT (email) DO UPDATE
-       SET contraseña = EXCLUDED.contraseña, rol = 'admin', activo = TRUE, updated_at = CURRENT_TIMESTAMP
+       SET contraseña = EXCLUDED.contraseña, rol = 'admin', activo = TRUE, email_verificado = TRUE,
+           updated_at = CURRENT_TIMESTAMP
      RETURNING id, email`,
     [email, hash]
   );

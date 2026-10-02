@@ -56,6 +56,9 @@ async function crearBaseDatos() {
         fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         activo BOOLEAN DEFAULT TRUE,
         rol VARCHAR(50) DEFAULT 'cliente',
+        email_verificado BOOLEAN NOT NULL DEFAULT FALSE,
+        token_verificacion VARCHAR(64),
+        token_verificacion_expira TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -150,6 +153,7 @@ async function crearBaseDatos() {
     // 4. Crear índices
     console.log('🔍 Creando índices...\n');
     await clientDB.query('CREATE INDEX idx_usuarios_email ON usuarios(email);');
+    await clientDB.query('CREATE INDEX idx_usuarios_token_verificacion ON usuarios(token_verificacion);');
     await clientDB.query('CREATE INDEX idx_pedidos_usuario ON pedidos(usuario_id);');
     await clientDB.query('CREATE INDEX idx_detalles_pedido ON detalles_pedidos(pedido_id);');
     await clientDB.query('CREATE INDEX idx_favoritos_usuario ON favoritos(usuario_id);');
@@ -163,8 +167,8 @@ async function crearBaseDatos() {
     const hashedPassword = await bcrypt.hash(passwordTest, 10);
 
     await clientDB.query(`
-      INSERT INTO usuarios (email, contraseña, nombre_completo, telefono, ciudad, rol)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO usuarios (email, contraseña, nombre_completo, telefono, ciudad, rol, email_verificado)
+      VALUES ($1, $2, $3, $4, $5, $6, TRUE)
     `, ['test@example.com', hashedPassword, 'Usuario Test', '123456789', 'Madrid', 'cliente']);
     console.log('  ✅ Usuario de ejemplo agregado');
     console.log(`     📧 Email: test@example.com`);

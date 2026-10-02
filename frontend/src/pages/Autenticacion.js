@@ -6,12 +6,15 @@ import '../styles/Autenticacion.css';
 
 function Autenticacion() {
   const navigate = useNavigate();
-  const { login, registro } = useContext(ContextoAutenticacion);
+  const { login, registro, reenviarVerificacion } = useContext(ContextoAutenticacion);
 
   const [modo, setModo] = useState('login'); // 'login' o 'registro'
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
+  const [emailPendiente, setEmailPendiente] = useState(null);
+  const [puedeReenviar, setPuedeReenviar] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
 
   const [formulario, setFormulario] = useState({
     email: '',
@@ -28,12 +31,27 @@ function Autenticacion() {
     }));
     setError('');
     setExito('');
+    setPuedeReenviar(false);
+  };
+
+  const manejarReenvio = async (email) => {
+    setReenviando(true);
+    setError('');
+    const resultado = await reenviarVerificacion(email);
+    if (resultado.success) {
+      setExito('Te hemos enviado un nuevo enlace de confirmación.');
+      setPuedeReenviar(false);
+    } else {
+      setError(resultado.error);
+    }
+    setReenviando(false);
   };
 
   const manejarLogin = async (e) => {
     e.preventDefault();
     setCargando(true);
     setError('');
+    setPuedeReenviar(false);
 
     const resultado = await login(formulario.email, formulario.contraseña);
 
@@ -44,6 +62,7 @@ function Autenticacion() {
       }, 1500);
     } else {
       setError(resultado.error);
+      setPuedeReenviar(resultado.codigo === 'EMAIL_NO_VERIFICADO');
     }
 
     setCargando(false);
@@ -68,16 +87,52 @@ function Autenticacion() {
     );
 
     if (resultado.success) {
-      setExito('¡Cuenta creada! Redirigiendo...');
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
+      setEmailPendiente(resultado.email);
+      setFormulario(prev => ({ ...prev, contraseña: '' }));
+      if (!resultado.emailEnviado) setError(resultado.mensaje);
     } else {
       setError(resultado.error);
     }
 
     setCargando(false);
   };
+
+  if (emailPendiente) {
+    return (
+      <div>
+        <Cabecera />
+        <div className="auth-container auth-container-centrado">
+          <div className="auth-card auth-verificacion">
+            <div className="auth-icono-grande">📧</div>
+            <h2>Revisa tu email</h2>
+            <p>
+              Te hemos enviado un enlace de confirmación a <strong>{emailPendiente}</strong>.
+              Ábrelo para activar tu cuenta. El enlace caduca en 24 horas.
+            </p>
+            <p className="auth-nota">¿No lo encuentras? Mira en la carpeta de spam.</p>
+
+            {error && <div className="mensaje-error">❌ {error}</div>}
+            {exito && <div className="mensaje-exito">✅ {exito}</div>}
+
+            <button className="btn-auth" onClick={() => manejarReenvio(emailPendiente)} disabled={reenviando}>
+              {reenviando ? '⏳ Enviando...' : 'Reenviar email'}
+            </button>
+            <button
+              className="btn-auth-secundario"
+              onClick={() => {
+                setEmailPendiente(null);
+                setModo('login');
+                setError('');
+                setExito('');
+              }}
+            >
+              Volver a iniciar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -114,6 +169,16 @@ function Autenticacion() {
 
           {error && <div className="mensaje-error">❌ {error}</div>}
           {exito && <div className="mensaje-exito">✅ {exito}</div>}
+          {puedeReenviar && (
+            <button
+              type="button"
+              className="btn-auth-secundario btn-reenviar"
+              onClick={() => manejarReenvio(formulario.email)}
+              disabled={reenviando}
+            >
+              {reenviando ? '⏳ Enviando...' : '📧 Reenviar email de confirmación'}
+            </button>
+          )}
 
           <form
             className="auth-formulario"

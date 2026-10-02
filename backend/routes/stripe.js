@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('../config/stripe');
 const { Pool } = require('pg');
+const { enviarConfirmacionPedido } = require('../services/email');
 
 // Conexión a BD
 const pool = new Pool({
@@ -63,6 +64,30 @@ router.post('/payment-intent', async (req, res) => {
  * POST /api/stripe/confirm-payment
  * Confirmar un pago y crear el pedido en la BD
  */
+async function enviarEmailPedido(pedidoId) {
+  const pedido = await pool.query(
+    `SELECT p.id, p.total, p.direccion_envio, u.email, u.nombre_completo
+     FROM pedidos p JOIN usuarios u ON u.id = p.usuario_id
+     WHERE p.id = $1`,
+    [pedidoId]
+  );
+  const items = await pool.query(
+    `SELECT pr.nombre, dp.cantidad, dp.subtotal
+     FROM detalles_pedidos dp JOIN productos pr ON pr.id = dp.producto_id
+     WHERE dp.pedido_id = $1`,
+    [pedidoId]
+  );
+  const p = pedido.rows[0];
+  await enviarConfirmacionPedido({
+    email: p.email,
+    nombre: p.nombre_completo,
+    pedidoId: p.id,
+    items: items.rows,
+    total: p.total,
+    direccion: p.direccion_envio
+  });
+}
+
 router.post('/confirm-payment', async (req, res) => {
   const client = await pool.connect();
 
@@ -129,6 +154,10 @@ router.post('/confirm-payment', async (req, res) => {
           estado: 'confirmado'
         }
       });
+
+      enviarEmailPedido(pedidoId).catch(error =>
+        console.error(`❌ Error enviando email del pedido #${pedidoId}:`, error.message)
+      );
 
     } catch (dbError) {
       await client.query('ROLLBACK');
